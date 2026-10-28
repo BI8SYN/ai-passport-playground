@@ -29,10 +29,10 @@
 ## Tasks
 
 - [x] 导入完整上游 subtree，检查指南与五个 passport 技能，保留版本来源。
-- [ ] 配置固定镜像 Dockerfile、Compose、构建和缓存 volumes、无 USB 默认配置。
-- [ ] 先测试工程解析、非法命令和配置变更识别，再实现统一工具入口。
-- [ ] 建立 hardware-test 工程，引用上游 main/BSP；保留独立锁与分区。
-- [ ] 容器运行原始完整 gate，验证合并镜像和 ELF，再验证 monorepo 增量构建与缓存复用。
-- [ ] 审查、更新 ADR/开发指南与项目入口，保留本地验证结果。
+- [x] 配置固定镜像 Dockerfile、Compose、构建和缓存 volumes、无 USB 默认配置。
+- [x] 先测试工程解析、非法命令和配置变更识别，再实现统一工具入口。
+- [x] 建立 hardware-test 工程，引用上游 main/BSP；保留独立锁与分区。
+- [x] 容器运行原始完整 gate，验证合并镜像和 ELF，再验证 monorepo 增量构建与缓存复用。
+- [x] 审查、更新 ADR/开发指南与项目入口，保留本地验证结果。
 
 验证命令：docker compose config --quiet；./tools/dev image；./tools/dev test；./tools/dev gate；./tools/dev build hardware-test；./tools/dev cache-stats。

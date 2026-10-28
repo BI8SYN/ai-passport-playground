@@ -17,6 +17,7 @@ FoloToy AI Passport 固件 monorepo，使用 OrbStack Docker 隔离 ESP-IDF 开�
 - [Monorepo 调研与建议](docs/research/ai-passport-monorepo.md)
 - [架构概览](docs/architecture/overview.md)
 - [容器构建与缓存指南](docs/development/docker.md)
+- [已完成的构建验证](docs/development/validation-2026-10-28.md)
 - [固件工程约定](firmware/README.md)
 - [上游版本来源](vendor/ai-passport-source.json)
 - [AI 协作入口](AGENTS.md)

@@ -21,6 +21,17 @@ macOS 只需现有的 OrbStack、Docker CLI 和 Git。ESP-IDF、交叉编译器�
 
 首次镜像下载体积较大。基础镜像为官方 ESP-IDF v5.5.3，Dockerfile 固定多平台 manifest digest；Docker 自动选择本机架构。不要把 latest 用于可复现构建。actionlint 1.7.12 从其发布者的固定 digest 多平台镜像复制静态二进制，无需在 RUN 步骤下载 GitHub release 或安装系统包。
 
+若 Docker Hub 大层下载停滞，可尝试同 digest 的 Google Docker Hub 缓存，仅覆盖本次构建参数，不修改全局 daemon：
+
+```sh
+docker compose build \
+  --build-arg IDF_IMAGE=mirror.gcr.io/espressif/idf@sha256:8ccd4d2ce413889c6c2bba57e986c670302094efb91c913c6091152e317a7805 \
+  --build-arg ACTIONLINT_IMAGE=mirror.gcr.io/rhysd/actionlint@sha256:b1934ee5f1c509618f2508e6eb47ee0d3520686341fec936f3b79331f9315667 \
+  sdk
+```
+
+缓存服务不保证长期保留所有镜像；缺失时使用原始来源。镜像内容仍由固定 digest 校验。本项目的 [首次验收记录](validation-2026-10-28.md)包含镜像身份、编译和缓存实测结果。
+
 `gate` 在 vendor/ai-passport 中执行原始 tools/validate.sh，不修改上游脚本。它包含仓库检查、workflow 检查、全部 host tests、全新临时目录中的 ESP-IDF 构建、镜像合并、分区/镜像边界校验以及 ELF 匹配验证。
 
 `build hardware-test` 是 monorepo 独立工程的增量构建，复用上游 main 和 BSP；`build upstream` 则增量编译原始工程。两者会合并并验证镜像、保留与镜像匹配的 ELF/MAP，但不会代替完整 gate 的 host tests。
