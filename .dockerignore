@@ -1,0 +1,6 @@
+**
+!Dockerfile
+!vendor/
+!vendor/ai-passport/
+!vendor/ai-passport/tools/
+!vendor/ai-passport/tools/install-actionlint.sh

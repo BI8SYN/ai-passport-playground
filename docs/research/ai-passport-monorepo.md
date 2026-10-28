@@ -7,7 +7,7 @@ status: proposal
 
 适合采用 monorepo。建议组织为“多个独立 ESP-IDF 固件工程，共享 BSP、通用组件、资料和工具”，每款应用分别编译、发布和刷写。以下以未来维护多款固件为假设；若只做一个应用，保留上游单工程结构即可，暂时没有必要增加应用层目录。
 
-本文是待采用的架构建议；当前仓库只初始化了协作文档，没有导入固件、安装 ESP-IDF、执行编译或连接设备。
+本文保留实施前的架构调研。用户随后确认采用 monorepo + OrbStack Docker；实际目录和使用方式以 [架构概览](../architecture/overview.md) 与 [容器开发指南](../development/docker.md) 为准。
 
 ## 上游现状
 
@@ -39,7 +39,7 @@ status: proposal
 
 ## 建议的目标结构
 
-下列目录是目标结构，尚未创建源码部分。pomodoro 和 companion 只是应用名称示例。
+下列目录是调研时的目标结构。pomodoro 和 companion 只是应用名称示例；本次先建立引用原始测试源码的 hardware-test 工程，实际结构见架构概览。
 
 ```text
 ai-passport-playground/

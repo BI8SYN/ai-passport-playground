@@ -1,0 +1,13 @@
+.DS_Store
+.superpowers/
+artifacts/
+build/
+**/build/
+**/managed_components/
+**/sdkconfig
+**/sdkconfig.old
+**/__pycache__/
+*.pyc
+.env
+.env.*
+!.env.example

@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+set -euo pipefail
+repo_root="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
+cd "${repo_root}"
+
+case "${1:-help}" in
+  image)
+    [[ $# -eq 1 ]] || { echo 'Usage: tools/dev image' >&2; exit 2; }
+    exec docker compose build sdk
+    ;;
+  doctor|gate|build|static|test|cache-stats)
+    exec docker compose run --rm --no-deps -T sdk python3 tools/firmware.py "$@"
+    ;;
+  help|--help|-h)
+    cat <<'HELP'
+Usage: ./tools/dev COMMAND
+  image                  Build the pinned ESP-IDF development image
+  doctor                 Check container toolchain and cache paths
+  gate                   Run the original upstream full validation gate
+  static                 Run upstream static checks and host tests
+  build [hardware-test]  Incrementally build and verify hardware-test or upstream
+  test                   Run local build-tool tests
+  cache-stats            Show persistent compiler cache statistics
+No device access, flashing or publishing commands are provided.
+HELP
+    ;;
+  *) echo 'Unknown command. Run ./tools/dev help.' >&2; exit 2 ;;
+esac

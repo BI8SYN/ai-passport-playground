@@ -1,0 +1,37 @@
+name: ai-passport-playground
+
+services:
+  sdk:
+    image: ai-passport-sdk:idf5.5.3
+    build:
+      context: .
+      dockerfile: Dockerfile
+    working_dir: /workspace
+    environment:
+      IDF_CCACHE_ENABLE: "1"
+      CCACHE_DIR: /cache/ccache
+      CCACHE_MAXSIZE: 2G
+      IDF_COMPONENT_CACHE_PATH: /cache/components
+      XDG_CACHE_HOME: /cache/xdg
+      PYTHONDONTWRITEBYTECODE: "1"
+      IDF_GIT_SAFE_DIR: /workspace
+    volumes:
+      - .:/workspace
+      - builds:/build
+      - ccache:/cache/ccache
+      - component-cache:/cache/components
+      - user-cache:/cache/xdg
+      - managed-upstream:/workspace/vendor/ai-passport/managed_components
+      - managed-hardware-test:/workspace/firmware/hardware-test/managed_components
+      - upstream-gate-artifacts:/workspace/vendor/ai-passport/build
+    # Build-only by design: no devices, USB mounts, privileged mode or ports.
+    command: ["python3", "tools/firmware.py", "doctor"]
+
+volumes:
+  builds:
+  ccache:
+  component-cache:
+  user-cache:
+  managed-upstream:
+  managed-hardware-test:
+  upstream-gate-artifacts:

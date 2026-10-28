@@ -1,0 +1,9 @@
+{
+  "repository": "https://github.com/FoloToy/ai-passport.git",
+  "ref": "main",
+  "commit": "006c2279852e352a8433b2c21e5e09be2ca36f77",
+  "import_method": "git subtree --squash",
+  "prefix": "vendor/ai-passport",
+  "imported_on": "2026-10-28",
+  "local_patches": []
+}

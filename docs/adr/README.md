@@ -4,4 +4,6 @@ last-reviewed: 2026-10-28
 
 # 架构决策索引
 
-暂无已接受的架构决策。[Monorepo 方案](../research/ai-passport-monorepo.md)仍处于建议阶段。确认方案后再建立 ADR，记录选择、取舍与后果。
+| 决策 | 状态 | 日期 |
+| --- | --- | --- |
+| [0001 采用 monorepo 与容器化固件构建](0001-monorepo-container-build.md) | 已接受 | 2026-10-28 |

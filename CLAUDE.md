@@ -18,6 +18,8 @@
 | 模块文档 | docs/architecture/modules/ |
 | 调研 | docs/research/ |
 | 开发计划 | docs/plans/ |
+| 容器开发 | docs/development/docker.md |
+| 固件专用技能 | .agents/skills/ |
 | 项目技能 | .claude/skills/ |
 | 项目 agent 模板 | .claude/agents/ |
 
