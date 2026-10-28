@@ -1,0 +1,4 @@
+1. After installation, power on and start immediately; no network setup is needed. The initial yellow–violet–red–gold resistor reads 4.7 kΩ, ±5%. Enter band colors manually; the app does not recognize physical resistors automatically.
+2. The small teal mark below the resistor shows the selected band. Press Up or Down to change its color. The resistance and tolerance range update as you adjust it.
+3. Tap OK to select the next band. Hold OK for about 0.4 seconds to select the previous one. Releasing after a hold does not move forward again; continue using Up and Down to edit.
+4. Select the band-count option at the top and use Up or Down to switch between 4, 5 and 6 bands. Tap OK to return to the bands and keep experimenting. Restarting restores the initial state.

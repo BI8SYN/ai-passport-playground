@@ -1,0 +1,30 @@
+{
+  "format": "little-endian RGB565",
+  "body_images": 2,
+  "size": [
+    240,
+    76
+  ],
+  "tile_centers": [
+    49,
+    70,
+    72,
+    78,
+    91,
+    95,
+    107,
+    112,
+    118,
+    133,
+    186,
+    190
+  ],
+  "tile_size": [
+    11,
+    53
+  ],
+  "tile_y": 10,
+  "colors": 12,
+  "bytes": 240864,
+  "sha256": "6006cbb793bb5e03ab4b803c9845d4da869cb172deac65d61a168d99fb6bd71d"
+}

@@ -19,6 +19,7 @@ Usage: ./tools/dev COMMAND
   gate                   Run the original upstream full validation gate
   static                 Run upstream static checks and host tests
   build [TARGET]         Build hardware-test (default), upstream or resistor-reader
+  build resistor-reader --benchmark  Build an explicitly marked startup benchmark
   preview resistor-reader Render the real LVGL UI and check font glyphs
   test                   Run local build-tool tests
   cache-stats            Show persistent compiler cache statistics

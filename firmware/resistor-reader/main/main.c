@@ -1,4 +1,6 @@
 #include "resistor_ui.h"
+#include "resistor_input.h"
+#include "esp_timer.h"
 #include "bsp_display.h"
 #include "bsp_button.h"
 #include "bsp_battery.h"
@@ -7,15 +9,19 @@
 #include "freertos/queue.h"
 #include "freertos/task.h"
 
-typedef struct { bool battery; int value; bsp_btn_t button; bsp_btn_ev_t event; } app_event_t;
+typedef struct { bool battery; int value; bsp_btn_t button; bsp_btn_ev_t event; uint32_t at; } app_event_t;
 static QueueHandle_t events;
 static rr_state_t state;
+static rr_input_t input;
+#ifdef RR_BENCHMARK
+void rr_benchmark_run(void);
+#endif
 static int battery_percent = -1;
 
 static void on_button(bsp_btn_t button, bsp_btn_ev_t event, void *user) {
     (void)user;
-    if (event != BSP_BTN_CLICK && event != BSP_BTN_LONG && event != BSP_BTN_DOUBLE) return;
-    const app_event_t message = {.button = button, .event = event};
+    if (event != BSP_BTN_PRESS && event != BSP_BTN_RELEASE) return;
+    const app_event_t message = {.button = button, .event = event, .at = (uint32_t)(esp_timer_get_time() / 1000)};
     (void)xQueueSend(events, &message, 0);
 }
 
@@ -28,12 +34,13 @@ static void poll_input(lv_timer_t *timer) {
         if (message.battery) battery_percent = message.value;
         else {
             rr_key_t key = message.button == BSP_BTN_UP ? RR_UP : message.button == BSP_BTN_DOWN ? RR_DOWN : RR_OK;
-            rr_event_t event = message.event == BSP_BTN_LONG ? RR_LONG : message.event == BSP_BTN_DOUBLE ? RR_DOUBLE : RR_CLICK;
-            rr_handle(&state, key, event);
+            rr_input_event(&input, &state, key, message.event == BSP_BTN_PRESS ? RR_PRESS : RR_RELEASE, message.at);
         }
         changed = true;
     }
-    if (changed) rr_ui_refresh(&state, battery_percent);
+    bool previously_backwards = input.backwards;
+    rr_input_tick(&input, &state, (uint32_t)(esp_timer_get_time() / 1000));
+    if (changed || previously_backwards != input.backwards) rr_ui_refresh(&state, battery_percent);
 }
 
 void app_main(void) {
@@ -46,12 +53,15 @@ void app_main(void) {
     }
     if (!bsp_lvgl_lock(1000)) { ESP_LOGE("resistor", "LVGL lock failed"); return; }
     rr_ui_create(&state);
-    lv_timer_create(poll_input, 20, NULL);
+    lv_timer_create(poll_input, 5, NULL);
     bsp_lvgl_unlock();
     bsp_display_backlight(85);
+#ifdef RR_BENCHMARK
+    rr_benchmark_run();
+#endif
     ESP_ERROR_CHECK(bsp_button_init(on_button, NULL));
     const bool battery_available = bsp_battery_init() == ESP_OK;
-    ESP_LOGI("resistor", "Ready: 4/5/6 bands; UP/DOWN edit, OK select, hold OK band count");
+    ESP_LOGI("resistor", "Ready: 4/5/6 bands; UP/DOWN edit, OK next, hold OK previous (400ms)");
     for (;;) {
         const app_event_t message = {.battery = true, .value = battery_available ? bsp_battery_soc() : -1};
         (void)xQueueSend(events, &message, 0);

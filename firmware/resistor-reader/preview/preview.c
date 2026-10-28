@@ -1,11 +1,16 @@
 #include "resistor_ui.h"
+#include "resistor_render.h"
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
+static uint64_t flushed_pixels;
+void rr_art_render(uint16_t *, const rr_state_t *, bool);
+static uint16_t reference[RR_IMAGE_WIDTH * RR_IMAGE_HEIGHT], optimized[RR_IMAGE_WIDTH * RR_IMAGE_HEIGHT];
 static uint16_t pixels[240 * 320], draw_buffer[240 * 20];
 static void flush(lv_display_t *display, const lv_area_t *area, uint8_t *data) {
+    flushed_pixels += (uint64_t)(area->x2 - area->x1 + 1) * (area->y2 - area->y1 + 1);
     const uint16_t *source = (const uint16_t *)data;
     for (int y = area->y1; y <= area->y2; y++)
         for (int x = area->x1; x <= area->x2; x++) pixels[y * 240 + x] = *source++;
@@ -38,8 +43,31 @@ static void save(const char *directory, unsigned bands) {
     }
     assert(fclose(output) == 0);
 }
+static void check_renderer(void) {
+    for (unsigned bands = 4; bands <= 6; bands++) {
+        rr_state_t s; rr_init(&s); s.bands = bands;
+        rr_render_resistor(optimized, &s);
+        for (unsigned ring = 1; ring <= bands; ring++) {
+            s.selected = ring;
+            for (unsigned step = 0; step < 12; step++) {
+                rr_state_t old = s;
+                rr_handle(&s, RR_UP, RR_CLICK);
+                rr_rect_t damage;
+                assert(rr_render_update(optimized, &old, &s, &damage));
+                assert(damage.x2 - damage.x1 + 1 == RR_TILE_WIDTH);
+                assert(damage.y2 - damage.y1 + 1 == RR_TILE_HEIGHT);
+                rr_art_render(reference, &s, true);
+                assert(!memcmp(reference, optimized, sizeof(reference)));
+            }
+        }
+        rr_rect_t damage;
+        assert(!rr_render_update(optimized, &s, &s, &damage));
+    }
+    puts("All role/color updates match reference pixels; color damage is exactly 11x53: PASS");
+}
 int main(int argc, char **argv) {
     assert(argc == 2);
+    check_renderer();
     lv_init();
     for (unsigned c = 32; c < 127; c++) check_glyph(c);
     const unsigned char *p = (const unsigned char *)rr_ui_glyphs;
@@ -58,14 +86,31 @@ int main(int argc, char **argv) {
     rr_init(&state);
     rr_ui_create(&state);
     for (unsigned bands = 4; bands <= 6; bands++) {
+        unsigned last_ring = bands;
+        int digit_gap = rr_ring_x(bands, 2) - rr_ring_x(bands, 1);
+        int tolerance_gap = rr_ring_x(bands, last_ring) - rr_ring_x(bands, last_ring - 1);
+        assert(tolerance_gap > digit_gap); /* Reading direction must remain visually asymmetric. */
+        for (unsigned ring = 2; ring <= bands; ring++)
+            assert(rr_ring_x(bands, ring) > rr_ring_x(bands, ring - 1));
         state.bands = bands;
         state.selected = bands == 4 ? 1 : bands;
         rr_ui_refresh(&state, 86);
         lv_refr_now(display);
         /* Catch unsupported LVGL float formatting before delivering a screen. */
-        assert(has_label(lv_screen_active(), bands == 6 ? "±5%  100 ppm/K" : "容差 ±5%"));
+        assert(has_label(lv_screen_active(), bands == 6 ? "±5%  100 ppm/K" : "±5%"));
         save(argv[1], bands);
     }
+    uint64_t before = flushed_pixels;
+    rr_handle(&state, RR_OK, RR_CLICK); rr_ui_refresh(&state, 86); lv_refr_now(display);
+    uint64_t focus_pixels = flushed_pixels - before;
+    assert(focus_pixels < 20000);
+    state.selected = 1; rr_ui_refresh(&state, 86); lv_refr_now(display);
+    before = flushed_pixels;
+    rr_handle(&state, RR_UP, RR_CLICK); rr_ui_refresh(&state, 86); lv_refr_now(display);
+    uint64_t color_pixels = flushed_pixels - before;
+    assert(color_pixels < 60000);
+    printf("Partial flush pixels: focus=%llu color=%llu (screen=76800)\n",
+           (unsigned long long)focus_pixels, (unsigned long long)color_pixels);
     /* Exercise all roles and legal colors under the device's 32 KiB LVGL heap. */
     for (unsigned i = 0; i < 500; i++) {
         rr_handle(&state, i % 13 == 0 ? RR_OK : RR_UP, i % 37 == 0 ? RR_LONG : RR_CLICK);

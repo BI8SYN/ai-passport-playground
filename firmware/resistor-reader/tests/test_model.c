@@ -62,13 +62,17 @@ int main(void) {
     rr_handle(&s, RR_UP, RR_DOUBLE);
     assert(s.digits[0] == RR_BLUE);
     rr_handle(&s, RR_OK, RR_LONG);
-    assert(s.bands == 5 && rr_valid(&s));
+    assert(s.bands == 4 && s.selected == 0 && rr_valid(&s));
     rr_handle(&s, RR_OK, RR_RELEASE);
-    assert(s.bands == 5);
+    assert(s.bands == 4 && s.selected == 0);
     s.selected = 0; rr_handle(&s, RR_DOWN, RR_CLICK);
-    assert(s.bands == 4);
+    assert(s.bands == 6);
     s.bands = 6; s.selected = 6; rr_handle(&s, RR_OK, RR_LONG);
-    assert(s.bands == 4 && s.selected <= 4);
+    assert(s.bands == 6 && s.selected == 5);
+    s.selected = 0; rr_handle(&s, RR_OK, RR_LONG);
+    assert(s.bands == 6 && s.selected == 6);
+    rr_handle(&s, RR_OK, RR_CLICK);
+    assert(s.selected == 0);
     for (unsigned i = 0; i < 500; i++) {
         rr_handle(&s, (rr_key_t)(i % 3), i % 7 == 0 ? RR_LONG : RR_CLICK);
         assert(rr_valid(&s));

@@ -1,0 +1,10 @@
+{
+  "title_zh": "色环电阻读取器",
+  "title_en": "Resistor Color Reader",
+  "description_zh": "把电阻上的彩色条纹变成直观的数字。手动选择4、5或6环，逐环调整颜色，即时查看阻值、容差范围及6环电阻的温度系数。仿真电阻外观配合简洁界面，短按前进、长按后退，轻松对照手边电阻或练习色码识读。完全离线，随手就能用。封面为玩法示意图，界面图片为渲染预览。",
+  "description_en": "Turn resistor color bands into clear, useful numbers. Choose a 4-, 5- or 6-band resistor, adjust each color, and instantly see its resistance, tolerance range and, for six bands, temperature coefficient. A realistic resistor illustration and uncluttered controls make it easy to compare with a resistor in hand or practice reading color codes. Tap to move forward, hold to go back, and explore entirely offline. The cover is an illustration; interface images are rendered previews.",
+  "firmware_sha256": "ad11bb24569be961b416ac0765923ffc2bad4a06580c813310378aff7fd4da10",
+  "source_url": null,
+  "changelog_zh": "",
+  "changelog_en": ""
+}

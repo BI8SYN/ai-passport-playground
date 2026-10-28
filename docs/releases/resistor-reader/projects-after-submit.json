@@ -1,0 +1,63 @@
+{
+  "ok": true,
+  "projects": [
+    {
+      "reviewRemindedAt": null,
+      "instructions": {
+        "zh": "1. 安装后开机即可使用，无需配网。初始电阻为黄、紫、红、金四环，显示4.7 kΩ、±5%；本玩法按手动输入的色环计算，不会自动识别实物。\n2. 本体下方的青色短线表示当前选中的色环。按上、下键改变其颜色，阻值和容差范围会随选择更新。\n3. 短按确定选择下一环；长按确定约0.4秒选择上一环。长按后松手不会再前进，可继续上下改色。\n4. 选中顶部环数后，用上、下键切换4、5、6环，再按确定回到色环继续调整。重启会恢复初始状态。",
+        "en": "1. After installation, power on and start immediately; no network setup is needed. The initial yellow–violet–red–gold resistor reads 4.7 kΩ, ±5%. Enter band colors manually; the app does not recognize physical resistors automatically.\n2. The small teal mark below the resistor shows the selected band. Press Up or Down to change its color. The resistance and tolerance range update as you adjust it.\n3. Tap OK to select the next band. Hold OK for about 0.4 seconds to select the previous one. Releasing after a hold does not move forward again; continue using Up and Down to edit.\n4. Select the band-count option at the top and use Up or Down to switch between 4, 5 and 6 bands. Tap OK to return to the bands and keep experimenting. Restarting restores the initial state."
+      },
+      "changelog": {
+        "zh": "",
+        "en": ""
+      },
+      "id": 1713,
+      "slug": "community-8daad1b0",
+      "source": "community",
+      "projectStatus": "pending",
+      "revisionId": 3963,
+      "status": "pending",
+      "title": {
+        "zh": "色环电阻读取器",
+        "en": "Resistor Color Reader"
+      },
+      "description": {
+        "zh": "把电阻上的彩色条纹变成直观的数字。手动选择4、5或6环，逐环调整颜色，即时查看阻值、容差范围及6环电阻的温度系数。仿真电阻外观配合简洁界面，短按前进、长按后退，轻松对照手边电阻或练习色码识读。完全离线，随手就能用。封面为玩法示意图，界面图片为渲染预览。",
+        "en": "Turn resistor color bands into clear, useful numbers. Choose a 4-, 5- or 6-band resistor, adjust each color, and instantly see its resistance, tolerance range and, for six bands, temperature coefficient. A realistic resistor illustration and uncluttered controls make it easy to compare with a resistor in hand or practice reading color codes. Tap to move forward, hold to go back, and explore entirely offline. The cover is an illustration; interface images are rendered previews."
+      },
+      "githubUrl": "",
+      "category": "learning",
+      "reviewNote": null,
+      "createdAt": "2026-10-28T06:41:57+00:00",
+      "updatedAt": "2026-10-28T06:41:57+00:00",
+      "reviewedAt": null,
+      "stateVersion": 1,
+      "hasImage": true,
+      "originalFilename": "resistor-reader-full.bin",
+      "firmwareSize": 1021952,
+      "firmwareSha256": "ad11bb24569be961b416ac0765923ffc2bad4a06580c813310378aff7fd4da10",
+      "allowRemix": false,
+      "remix": {
+        "visible": false,
+        "canRequest": false,
+        "allowed": false,
+        "canRemix": false,
+        "isOwner": true,
+        "requestStatus": "none",
+        "sourceUrl": "",
+        "parent": null,
+        "childCount": 0,
+        "originSourceUrl": ""
+      },
+      "publishedRevision": null
+    }
+  ],
+  "submissionResult": {
+    "ok": true,
+    "projectId": 1713,
+    "revisionId": 3963,
+    "slug": "community-8daad1b0",
+    "status": "pending",
+    "allowRemix": false
+  }
+}

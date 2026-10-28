@@ -41,6 +41,12 @@ class FirmwareToolTests(unittest.TestCase):
             with self.subTest(args=args), contextlib.redirect_stderr(io.StringIO()), self.assertRaises(SystemExit):
                 self.tool.parse_args(args)
 
+    def test_benchmark_is_explicit_and_product_only(self):
+        self.assertTrue(self.tool.parse_args(["build", "resistor-reader", "--benchmark"]).benchmark)
+        self.assertFalse(self.tool.parse_args(["build", "resistor-reader"]).benchmark)
+        with contextlib.redirect_stderr(io.StringIO()), self.assertRaises(SystemExit):
+            self.tool.parse_args(["build", "upstream", "--benchmark"])
+
     def test_configuration_identity_tracks_config_not_application_source(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)

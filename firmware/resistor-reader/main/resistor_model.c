@@ -74,7 +74,7 @@ static void edit(rr_state_t *s, int direction) {
 
 void rr_handle(rr_state_t *s, rr_key_t key, rr_event_t event) {
     if (!rr_valid(s) || key < RR_UP || key > RR_OK) return;
-    if (event == RR_LONG) { if (key == RR_OK) change_count(s, 1); return; }
+    if (event == RR_LONG) { if (key == RR_OK) s->selected = (s->selected + s->bands) % (s->bands + 1); return; }
     if (event != RR_CLICK && event != RR_DOUBLE) return;
     for (unsigned i = 0; i < (event == RR_DOUBLE ? 2u : 1u); i++) {
         if (key == RR_OK) s->selected = (s->selected + 1) % (s->bands + 1);

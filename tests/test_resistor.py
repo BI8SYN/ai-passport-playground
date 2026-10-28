@@ -17,3 +17,12 @@ class ResistorTests(unittest.TestCase):
                                     text=True, capture_output=True)
             self.assertEqual(result.returncode, 0, result.stderr)
             subprocess.run([str(binary)], check=True)
+
+    def test_immediate_input(self):
+        app = ROOT / "firmware/resistor-reader"
+        with tempfile.TemporaryDirectory() as temporary:
+            binary = Path(temporary) / "input-tests"
+            subprocess.run(["cc", "-std=c11", "-Wall", "-Wextra", "-Werror", "-I", str(app / "main"),
+                            str(app / "tests/test_input.c"), str(app / "main/resistor_input.c"),
+                            str(app / "main/resistor_model.c"), "-lm", "-o", str(binary)], check=True)
+            subprocess.run([str(binary)], check=True)
