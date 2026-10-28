@@ -17,12 +17,23 @@ from datetime import datetime, timezone
 ROOT = Path(__file__).resolve().parents[1]
 BUILD_ROOT = Path("/build")
 APP = "FoloToy-AI-Passport"
-TARGETS = {"upstream": "vendor/ai-passport", "hardware-test": "firmware/hardware-test"}
+TARGETS = {"upstream": "vendor/ai-passport", "hardware-test": "firmware/hardware-test",
+           "resistor-reader": "firmware/resistor-reader"}
+
+
+def app_name(name):
+    return "resistor-reader" if name == "resistor-reader" else APP
+
+
+def archive_command(name, action, directory):
+    if name == "resistor-reader":
+        return [sys.executable, ROOT / "tools/package_firmware.py", action, directory, "--app", app_name(name)]
+    return [sys.executable, ROOT / "vendor/ai-passport/tools/archive_firmware.py", action, directory]
 
 
 def project_path(root, name):
     if name not in TARGETS:
-        raise ValueError(f"Unknown project {name!r}; choose upstream or hardware-test")
+        raise ValueError(f"Unknown project {name!r}; choose {', '.join(TARGETS)}")
     path = root / TARGETS[name]
     if path.resolve() != path or not (path / "CMakeLists.txt").is_file():
         raise ValueError(f"Project must be a real in-repository ESP-IDF directory: {path}")
@@ -34,6 +45,8 @@ def parse_args(argv=None):
     commands = parser.add_subparsers(dest="command", required=True)
     for name in ("doctor", "gate", "static", "test", "cache-stats"):
         commands.add_parser(name)
+    preview = commands.add_parser("preview")
+    preview.add_argument("project", choices=["resistor-reader"])
     build = commands.add_parser("build")
     build.add_argument("project", nargs="?", default="hardware-test", choices=TARGETS)
     return parser.parse_args(argv)
@@ -81,12 +94,10 @@ def check_environment():
 
 
 def export_archive(name, build_dir, archive_root, mode, idf_version):
-    upstream = project_path(ROOT, "upstream")
-    archive_tool = upstream / "tools/archive_firmware.py"
-    image = build_dir / f"{APP}-full.bin"
+    image = build_dir / f"{app_name(name)}-full.bin"
     image_hash = hashlib.sha256(image.read_bytes()).hexdigest()
     source = archive_root / image_hash
-    run([sys.executable, archive_tool, "verify", source])
+    run(archive_command(name, "verify", source))
     output_root = ROOT / "artifacts" / name
     output_root.mkdir(parents=True, exist_ok=True)
     output = output_root / image_hash
@@ -96,9 +107,9 @@ def export_archive(name, build_dir, archive_root, mode, idf_version):
         with tempfile.TemporaryDirectory(prefix=".export-", dir=output_root) as temporary:
             staging = Path(temporary) / image_hash
             shutil.copytree(source, staging)
-            run([sys.executable, archive_tool, "verify", staging])
+            run(archive_command(name, "verify", staging))
             staging.rename(output)
-    run([sys.executable, archive_tool, "verify", output])
+    run(archive_command(name, "verify", output))
     git_sha = run(["git", "rev-parse", "HEAD"], capture=True).stdout.strip()
     dirty = bool(run(["git", "status", "--porcelain", "--untracked-files=normal"], capture=True).stdout)
     manifest = json.loads((output / "manifest.json").read_text())
@@ -107,6 +118,7 @@ def export_archive(name, build_dir, archive_root, mode, idf_version):
         "repository_commit": git_sha, "repository_dirty": dirty, "idf_version": idf_version,
         "base_image": "espressif/idf:v5.5.3@sha256:8ccd4d2ce413889c6c2bba57e986c670302094efb91c913c6091152e317a7805",
         "full_bin_sha256": image_hash, "app_elf_sha256": manifest["app_elf_sha256"],
+        "full_bin_name": image.name,
         "verified_archive": str(output.relative_to(ROOT)), "completed_at": datetime.now(timezone.utc).isoformat(),
         "device_tests": "NOT RUN",
     }
@@ -126,12 +138,12 @@ def build_project(name, idf_version):
     build.mkdir(parents=True, exist_ok=True)
     command = ["idf.py", "-B", build, "-D", f"SDKCONFIG={build / 'sdkconfig'}"]
     run(command + ["build"], cwd=project)
-    run(["idf.py", "-B", build, "merge-bin", "-o", build / f"{APP}-full.bin"], cwd=project)
+    run(["idf.py", "-B", build, "merge-bin", "-o", build / f"{app_name(name)}-full.bin"], cwd=project)
     upstream = project_path(ROOT, "upstream")
-    run([sys.executable, upstream / "tools/verify_firmware.py", build])
+    if name != "resistor-reader":
+        run([sys.executable, upstream / "tools/verify_firmware.py", build])
     archive_root = BUILD_ROOT / name / "archives"
-    run([sys.executable, upstream / "tools/archive_firmware.py", "create", build,
-         "--archive-root", archive_root])
+    run(archive_command(name, "create", build) + ["--archive-root", archive_root])
     export_archive(name, build, archive_root, "incremental", idf_version)
 
 
@@ -151,6 +163,9 @@ def main(argv=None):
         return
     if args.command == "cache-stats":
         run(["ccache", "--show-stats"])
+        return
+    if args.command == "preview":
+        run([sys.executable, ROOT / "tools/render_resistor_preview.py"])
         return
     name = args.project if args.command == "build" else "upstream"
     lock_dir = BUILD_ROOT / "locks"

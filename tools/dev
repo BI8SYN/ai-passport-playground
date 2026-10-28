@@ -8,7 +8,7 @@ case "${1:-help}" in
     [[ $# -eq 1 ]] || { echo 'Usage: tools/dev image' >&2; exit 2; }
     exec docker compose build sdk
     ;;
-  doctor|gate|build|static|test|cache-stats)
+  doctor|gate|build|preview|static|test|cache-stats)
     exec docker compose run --rm --no-deps -T sdk python3 tools/firmware.py "$@"
     ;;
   help|--help|-h)
@@ -18,7 +18,8 @@ Usage: ./tools/dev COMMAND
   doctor                 Check container toolchain and cache paths
   gate                   Run the original upstream full validation gate
   static                 Run upstream static checks and host tests
-  build [hardware-test]  Incrementally build and verify hardware-test or upstream
+  build [TARGET]         Build hardware-test (default), upstream or resistor-reader
+  preview resistor-reader Render the real LVGL UI and check font glyphs
   test                   Run local build-tool tests
   cache-stats            Show persistent compiler cache statistics
 No device access, flashing or publishing commands are provided.

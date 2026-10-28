@@ -16,6 +16,8 @@ macOS 只需现有的 OrbStack、Docker CLI 和 Git。ESP-IDF、交叉编译器�
 ./tools/dev test
 ./tools/dev gate
 ./tools/dev build hardware-test
+./tools/dev build resistor-reader
+./tools/dev preview resistor-reader
 ./tools/dev cache-stats
 ```
 
@@ -36,6 +38,8 @@ docker compose build \
 
 `build hardware-test` 是 monorepo 独立工程的增量构建，复用上游 main 和 BSP；`build upstream` 则增量编译原始工程。两者会合并并验证镜像、保留与镜像匹配的 ELF/MAP，但不会代替完整 gate 的 host tests。
 
+`build resistor-reader` 构建独立产品并验证其项目名、分区、完整镜像及 ELF 身份；`preview resistor-reader` 在 SDK 容器中编译原生 LVGL，渲染同一份产品 UI 并检查字形。字体再生成见 [字体来源](../../assets/fonts/README.md)。
+
 ## 缓存与配置
 
 | 内容 | 容器内路径 | 存储方式 |
@@ -47,6 +51,8 @@ docker compose build \
 | 其他用户缓存 | /cache/xdg | user-cache volume |
 | 上游解包组件 | /workspace/vendor/ai-passport/managed_components | managed-upstream volume |
 | hardware-test 解包组件 | /workspace/firmware/hardware-test/managed_components | managed-hardware-test volume |
+| resistor-reader 解包组件 | /workspace/firmware/resistor-reader/managed_components | managed-resistor-reader volume |
+| 字体工具依赖与下载缓存 | /workspace/tools/fonts/node_modules、/root/.npm | font-node-modules / font-npm-cache volumes |
 | 原始 gate 输出 | /workspace/vendor/ai-passport/build | upstream-gate-artifacts volume |
 | 验证后的交付文件 | /workspace/artifacts/<target>/ | 导出到主机，Git 忽略 |
 
@@ -81,6 +87,6 @@ git subtree merge --prefix=vendor/ai-passport --squash FETCH_HEAD
 
 ## 当前边界
 
-本配置未开放 privileged、devices、宿主 USB、Docker socket 或任何端口。用户已明确本阶段不烧录，因此也不执行设备枚举、串口打开或复位。后续获授权后再独立设计设备访问配置。
+本配置未开放 privileged、devices、宿主 USB、Docker socket 或任何端口。设备发现可在用户连接设备后只读进行；串口打开、复位及写入须按精确产物、端口及数据影响取得授权，后续独立设计设备访问配置。
 
 Dockerfile 和锁文件固定版本有助于重复构建，但目前不承诺不同时间和机器生成逐字节相同镜像；构建时间、源码版本描述等仍可能影响固件身份。

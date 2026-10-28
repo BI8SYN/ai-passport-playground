@@ -6,7 +6,7 @@ last-reviewed: 2026-10-28
 
 用于开发 FoloToy AI Passport 固件，并共享硬件资料、开发经验、驱动和通用代码。
 
-用户已确认采用 monorepo + OrbStack Docker。上游已通过 subtree 完整导入，来源固定至 006c2279852e352a8433b2c21e5e09be2ca36f77。容器、缓存及共享源码的 hardware-test 工程已建立并通过真实构建验证。首款产品应用需求尚未确定。
+用户已确认采用 monorepo + OrbStack Docker。上游已通过 subtree 完整导入，来源固定至 006c2279852e352a8433b2c21e5e09be2ca36f77。容器、缓存及共享源码的 hardware-test 工程已建立并通过真实构建验证。首款产品为独立的4/5/6环色环电阻读取器，见 [应用说明](../firmware/resistor-reader/README.md)。
 
 已接受决策见 [ADR 0001](adr/0001-monorepo-container-build.md)：多个独立 ESP-IDF 工程共享一份上游 BSP；固定 ESP-IDF 5.5.3，各应用独立配置、依赖锁和构建目录。使用方式见 [容器开发指南](development/docker.md)。
 
@@ -18,4 +18,4 @@ last-reviewed: 2026-10-28
 
 验证结果见 [构建验收记录](development/validation-2026-10-28.md)。原始完整 gate、全部上游 host tests、monorepo 编译及镜像/ELF 归档均 PASS；6 项工具测试 PASS。新容器复用了增量构建状态，强制单文件重编译实际命中 ccache，产物哈希保持不变。真机测试 NOT RUN；全程未访问设备。
 
-下一步：确定首款产品固件的需求，添加其独立 main/UI、配置、测试和打包规则。
+首款产品已实现独立 main/UI、配置、模型测试、字体生成、UI预览和打包规则；真机烧录及验收待授权。此前环境验证全程未访问设备，本次仅只读枚举已连接USB串口。

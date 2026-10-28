@@ -23,9 +23,20 @@ services:
       - user-cache:/cache/xdg
       - managed-upstream:/workspace/vendor/ai-passport/managed_components
       - managed-hardware-test:/workspace/firmware/hardware-test/managed_components
+      - managed-resistor-reader:/workspace/firmware/resistor-reader/managed_components
       - upstream-gate-artifacts:/workspace/vendor/ai-passport/build
     # Build-only by design: no devices, USB mounts, privileged mode or ports.
     command: ["python3", "tools/firmware.py", "doctor"]
+
+  fonts:
+    profiles: ["tools"]
+    image: node:24-bookworm-slim@sha256:d6aa754f16b3197301076f047b5def2f02ea1dbbc2ca920407d46d7ec7f87b20
+    working_dir: /workspace/tools/fonts
+    volumes:
+      - .:/workspace
+      - font-node-modules:/workspace/tools/fonts/node_modules
+      - font-npm-cache:/root/.npm
+    command: ["sh", "-c", "npm ci --no-audit --no-fund && node generate.mjs"]
 
 volumes:
   builds:
@@ -34,4 +45,7 @@ volumes:
   user-cache:
   managed-upstream:
   managed-hardware-test:
+  managed-resistor-reader:
   upstream-gate-artifacts:
+  font-node-modules:
+  font-npm-cache:

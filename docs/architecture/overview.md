@@ -12,3 +12,5 @@ Dockerfile 固定 ESP-IDF 5.5.3 官方镜像 digest，Compose 提供 /workspace 
 上游完整 gate 使用全新临时目录并执行 host tests；增量构建按配置身份选择持久化目录。它们共享编译器缓存，但不共享生成的 sdkconfig。默认没有设备访问权限或烧录入口。
 
 完整使用方式见 [容器开发指南](../development/docker.md)，决策见 [ADR 0001](../adr/0001-monorepo-container-build.md)，原始方案比较见 [调研](../research/ai-passport-monorepo.md)。
+
+resistor-reader 是首个独立产品，纯 C 色码模型与 LVGL UI 分离，按键通过队列进入 UI 任务。原生预览复用同一 UI/字体；字体工具独立使用按 digest 固定的 Node 容器。产品打包复用上游格式解析并验证自身项目名及镜像/ELF身份。
