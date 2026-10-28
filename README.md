@@ -16,6 +16,7 @@ FoloToy AI Passport 固件 monorepo，使用 OrbStack Docker 隔离 ESP-IDF 开�
 默认配置没有设备权限，也没有烧录命令。
 
 - [首款应用：色环电阻读取器](firmware/resistor-reader/README.md)
+- [色环固件验收与产物身份](docs/development/resistor-reader-validation-2026-10-28.md)
 - [项目简述](docs/project-brief.md)
 - [Monorepo 调研与建议](docs/research/ai-passport-monorepo.md)
 - [架构概览](docs/architecture/overview.md)
