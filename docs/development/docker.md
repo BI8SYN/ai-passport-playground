@@ -19,7 +19,7 @@ macOS 只需现有的 OrbStack、Docker CLI 和 Git。ESP-IDF、交叉编译器�
 ./tools/dev cache-stats
 ```
 
-首次镜像下载体积较大。基础镜像为官方 ESP-IDF v5.5.3，Dockerfile 固定多平台 manifest digest；Docker 自动选择本机架构。不要把 latest 用于可复现构建。镜像额外安装上游锁定且校验 SHA256 的 actionlint 1.7.12。
+首次镜像下载体积较大。基础镜像为官方 ESP-IDF v5.5.3，Dockerfile 固定多平台 manifest digest；Docker 自动选择本机架构。不要把 latest 用于可复现构建。actionlint 1.7.12 从其发布者的固定 digest 多平台镜像复制静态二进制，无需在 RUN 步骤下载 GitHub release 或安装系统包。
 
 `gate` 在 vendor/ai-passport 中执行原始 tools/validate.sh，不修改上游脚本。它包含仓库检查、workflow 检查、全部 host tests、全新临时目录中的 ESP-IDF 构建、镜像合并、分区/镜像边界校验以及 ELF 匹配验证。
 
@@ -41,7 +41,7 @@ macOS 只需现有的 OrbStack、Docker CLI 和 Git。ESP-IDF、交叉编译器�
 
 `docker compose run --rm` 只删除执行容器，volumes 继续保留；不需要常驻容器。不要例行运行 docker compose down -v，它会删除这些项目缓存。多个 checkout 并行工作时，可为每个 checkout 设置不同的 COMPOSE_PROJECT_NAME，避免共享工作目录 volume。
 
-源码修改不重建镜像，Ninja 做增量编译；固件组件依赖修改由 ESP-IDF 处理。工具链或开发工具依赖变化才重建镜像。镜像构建中的 actionlint 下载使用 BuildKit cache mount，缓存内容丢失后仍会校验并重新下载。
+源码修改不重建镜像，Ninja 做增量编译；固件组件依赖修改由 ESP-IDF 处理。工具链或开发工具依赖变化才重建镜像。Docker 会复用已下载的镜像层和构建步骤；未来增加 apt/pip 工具时，再在相应安装步骤增加 BuildKit 下载缓存和版本锁。
 
 为避免已有 sdkconfig 遮蔽 defaults 修改，构建工具根据 CMake、defaults、Kconfig、分区、manifest/锁和工具链定义选择隔离构建目录。配置改变后生成新目录，旧缓存保留；普通 C/C++ 源码修改仍使用原目录增量构建。公共 defaults、SDK 版本或共享组件配置变化会更新相应目录。不要直接修改生成的 sdkconfig 作为产品配置；需将有意更改记入应用 defaults。
 

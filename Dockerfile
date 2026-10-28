@@ -1,14 +1,13 @@
 # syntax=docker/dockerfile:1
 ARG IDF_IMAGE=espressif/idf:v5.5.3@sha256:8ccd4d2ce413889c6c2bba57e986c670302094efb91c913c6091152e317a7805
+ARG ACTIONLINT_IMAGE=rhysd/actionlint:1.7.12@sha256:b1934ee5f1c509618f2508e6eb47ee0d3520686341fec936f3b79331f9315667
+FROM ${ACTIONLINT_IMAGE} AS actionlint
 FROM ${IDF_IMAGE}
 
-# Upstream installer verifies the pinned actionlint 1.7.12 archive checksum.
-COPY vendor/ai-passport/tools/install-actionlint.sh /tmp/install-actionlint.sh
-RUN --mount=type=cache,target=/var/cache/passport-tools,sharing=locked \
-    bash /tmp/install-actionlint.sh /var/cache/passport-tools/actionlint-1.7.12 \
-    && install -m 0755 /var/cache/passport-tools/actionlint-1.7.12/actionlint /usr/local/bin/actionlint \
-    && rm /tmp/install-actionlint.sh \
-    && ccache --version
+# Copy the static binary from its publisher's immutable multi-platform image.
+# No package-manager or GitHub-release downloads occur in a RUN layer.
+COPY --from=actionlint /usr/local/bin/actionlint /usr/local/bin/actionlint
+RUN ccache --version && /usr/local/bin/actionlint --version
 
 WORKDIR /workspace
 # Keep Espressif's entrypoint: it activates the pinned IDF Python environment.
