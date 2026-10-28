@@ -1,0 +1,20 @@
+{
+  "purpose": "Unpublished local commit author/committer normalization requested by repository owner; trees, parent topology, messages and timestamps preserved.",
+  "identity": {
+    "name": "BI8SYN",
+    "email": "326114386+BI8SYN@users.noreply.github.com"
+  },
+  "backup": "Local-only bundle and refs/backup/pre-bi8syn-20261028; never pushed",
+  "original_build_provenance": "Firmware and earlier validation documents retain their original commit IDs; use this mapping to locate the identical source trees after identity normalization. Published firmware bytes and SHA256 are unchanged.",
+  "commits": {
+    "50b86aeb1d38cfb837f6ee4135de450be3619c3b": "d8d62884f7a4befd554e8057ad6462e177d2d16d",
+    "c0cc77a25b9102d0daeb35e21fffb908a86de4c4": "25acf21e0026dc548e08bf62bed119a05988ca6d",
+    "8439b886614b176b8a56f35a58fdeacaf521db32": "21f2472f27f5e7d2671be5cc61ce1a0973c2d682",
+    "61d97dff0100353b8032e6c1012ce87103cdf43b": "e0af1abbbc7a8ecb56253103d6475a9209d43bba",
+    "c79db8f38a0be5cb81bc98e3dc188dde95b8ff35": "1ddb1bc8312ac1f138c23a7c224ee21f79b3fc13",
+    "d3027954663c807f4304689ce23da142feab1c30": "79d14e09057f74ca0511655230994fbb1afad035",
+    "429a19d1e2fe1f2b579bb62c811e956b1a63f32b": "09a2717062ea8e73d08cb015acac0bd7c29cb7a8",
+    "d3053bb4557910f31e33ce1ca150775c63aff37f": "6f480c32284c846cdcd8da1347f503f9deb913bc",
+    "80d4c13ddeaa78e610f12c03a9a1348c541906dd": "8b1c00729e37a8faeb62fe6f350ebc3c6431bc2f"
+  }
+}

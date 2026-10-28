@@ -15,3 +15,5 @@
 构建通过、主机测试通过、真机验收通过必须分别报告。未运行时明确标记；不得声称当前研究方案已通过固件编译。
 
 文档地图及本地协作技能见 CLAUDE.md。架构决定确认后再记入 docs/adr/。
+
+Git 提交统一使用 BI8SYN，邮箱 326114386+BI8SYN@users.noreply.github.com；仅在本仓库配置，不修改全局身份。远程为 git@github-bi8syn:BI8SYN/ai-passport-playground.git，推送使用该 SSH 别名。首次推送前的本地提交身份迁移见 docs/development/git-identity-migration.json；不得推送 refs/backup 或本地构建/凭据。
