@@ -1,0 +1,16 @@
+{
+  "project_id": 1747,
+  "revision_id": 4050,
+  "slug": "community-bc8a6dca",
+  "status": "pending",
+  "published_revision": null,
+  "firmware_version": "3cc4718",
+  "source_commit": "3cc4718e4097fdeaa82552b89c47c6e00282b63b",
+  "source_url": "https://github.com/BI8SYN/ai-passport-playground",
+  "full_bin_sha256": "82b675268dd731160c947a4993d5b9f78d2991ba9a4e119e27a6fe7190b166b4",
+  "matching_elf_sha256": "994d3b1bd1c374c0e1ccd58e78ba46987b8ba765a68fbfc542f1f73589b5b77e",
+  "firmware_size": 908240,
+  "cover_sha256": "e979b71e7cdbeaac7ee8032875cd630a382f794fcf1a779036ce249d12b2c6ed",
+  "category_assigned_by_server": "learning",
+  "created_at": "2026-10-29T05:41:28+00:00"
+}
