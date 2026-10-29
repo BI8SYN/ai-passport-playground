@@ -1,0 +1,12 @@
+{
+  "title_zh": "听见音乐",
+  "title_en": "EAR LAB — Listen & Learn",
+  "description_zh": "把零散时间变成一场随身音乐小练习。听见音乐提供音程、和弦与进行、音阶、单音和节奏五类训练：听声音选答案，分解和弦后再听整体，在静音中保持节拍。支持阶梯挑战、自选题池、重听纠错和本地成绩，帮助你发现薄弱项，按自己的节奏反复练习。无需配网，随时打开就能开始。封面为玩法示意图。",
+  "description_en": "Turn a spare moment into a pocket-sized music workout. EAR LAB offers interval, chord and progression, scale, note, and rhythm practice. Identify sounds, hear a chord note by note and then together, or keep the beat after the music stops. Step-up challenges, custom practice pools, replay, corrective feedback, and local scores help you focus on what needs work. No network setup is needed. The cover is a gameplay illustration.",
+  "source_url": "https://github.com/BI8SYN/ai-passport-playground",
+  "cover": "assets/images/ear-trainer-cover.png",
+  "instructions_zh_file": "docs/releases/ear-trainer/instructions.zh-CN.txt",
+  "instructions_en_file": "docs/releases/ear-trainer/instructions.en.txt",
+  "changelog_zh": "",
+  "changelog_en": ""
+}

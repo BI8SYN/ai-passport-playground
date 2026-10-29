@@ -38,6 +38,8 @@ docker compose build \
 
 `build hardware-test` 是 monorepo 独立工程的增量构建，复用上游 main 和 BSP；`build upstream` 则增量编译原始工程。两者会合并并验证镜像、保留与镜像匹配的 ELF/MAP，但不会代替完整 gate 的 host tests。
 
+`build ear-trainer` 构建离线练耳产品，`preview ear-trainer` 渲染其真实 LVGL 页面并检查字形。各产品分别保留锁文件、配置、构建与固件/ELF归档。
+
 `build resistor-reader` 构建独立产品并验证其项目名、分区、完整镜像及 ELF 身份；`preview resistor-reader` 在 SDK 容器中编译原生 LVGL，渲染同一份产品 UI 并检查字形。字体再生成见 [字体来源](../../assets/fonts/README.md)。
 
 ## 缓存与配置
@@ -51,6 +53,7 @@ docker compose build \
 | 其他用户缓存 | /cache/xdg | user-cache volume |
 | 上游解包组件 | /workspace/vendor/ai-passport/managed_components | managed-upstream volume |
 | hardware-test 解包组件 | /workspace/firmware/hardware-test/managed_components | managed-hardware-test volume |
+| ear-trainer 解包组件 | /workspace/firmware/ear-trainer/managed_components | managed-ear-trainer volume |
 | resistor-reader 解包组件 | /workspace/firmware/resistor-reader/managed_components | managed-resistor-reader volume |
 | 字体工具依赖与下载缓存 | /workspace/tools/fonts/node_modules、/root/.npm | font-node-modules / font-npm-cache volumes |
 | 原始 gate 输出 | /workspace/vendor/ai-passport/build | upstream-gate-artifacts volume |
@@ -60,9 +63,28 @@ docker compose build \
 
 源码修改不重建镜像，Ninja 做增量编译；固件组件依赖修改由 ESP-IDF 处理。工具链或开发工具依赖变化才重建镜像。Docker 会复用已下载的镜像层和构建步骤；未来增加 apt/pip 工具时，再在相应安装步骤增加 BuildKit 下载缓存和版本锁。
 
-为避免已有 sdkconfig 遮蔽 defaults 修改，构建工具根据 CMake、defaults、Kconfig、分区、manifest/锁和工具链定义选择隔离构建目录。配置改变后生成新目录，旧缓存保留；普通 C/C++ 源码修改仍使用原目录增量构建。公共 defaults、SDK 版本或共享组件配置变化会更新相应目录。不要直接修改生成的 sdkconfig 作为产品配置；需将有意更改记入应用 defaults。
+为避免已有 sdkconfig 遮蔽 defaults 修改，构建工具根据 CMake、defaults、Kconfig、分区、manifest/锁和工具链定义选择隔离构建目录。配置改变后生成新目录；普通 C/C++ 源码修改仍使用原目录增量构建。陈旧目录按下述保留规则回收。公共 defaults、SDK 版本或共享组件配置变化会更新相应目录。不要直接修改生成的 sdkconfig 作为产品配置；需将有意更改记入应用 defaults。
 
 上游完整 gate 仍使用新的 /tmp 构建目录，不复用增量 sdkconfig 或 Ninja 状态；它可以复用独立 ccache 和组件下载缓存。这样保留原始门禁语义，同时加速重复编译。
+
+## 陈旧构建目录清理
+
+每个工程默认保留最近使用的 **2 套普通构建 + 1 套 benchmark 构建**。成功构建、验证并导出归档后自动执行一次；失败的构建不触发自动清理。构建开始和完成会更新 `.last-used`，旧目录兼容使用 Ninja 日志及目录修改时间判断先后。
+
+手动命令默认只预览候选目录及预计回收字节数：
+
+```sh
+./tools/dev clean-builds
+./tools/dev clean-builds resistor-reader
+./tools/dev clean-builds --apply
+./tools/dev clean-builds resistor-reader --keep 3 --keep-benchmark 1 --apply
+```
+
+`--keep` 最小为 1，`--keep-benchmark` 最小为 0；手动参数只影响本次清理，自动清理仍按 2+1。当前配置目录即使较旧也会受保护，并计入对应保留数量；保护数量超过配额时优先保护。
+
+仅删除 `/build/<target>/` 下名称严格匹配 16 位配置哈希（可带 `-benchmark`）的普通目录。不会清理 `archives/`、主机 `artifacts/`、预览目录、组件依赖、ccache、镜像或其他项目的 volumes，也不会沿符号链接删除外部文件。每个工程与构建共用互斥锁，手动清理遇到正在构建的工程会跳过。删除失败会报告路径；手动清理返回失败状态，自动清理失败不把已验证的构建改判为失败。
+
+已清理的目录在下次切回对应配置时可重新生成，但首次编译会慢一些；仍能利用 ccache 和组件下载缓存。保留的是增量编译状态，不代表只保留这些版本的固件；固件及匹配 ELF 的归档始终单独保存。
 
 ## 产物与身份
 

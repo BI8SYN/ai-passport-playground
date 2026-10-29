@@ -1,0 +1,4 @@
+1. No network setup is needed. After startup, tap Up or Down to choose a training category, press OK to enter, then select Start.
+2. Listen, tap Up or Down to choose an answer, and press OK to submit. Select Replay to listen again. Review the feedback and continue; chord breakdown plays the individual notes followed by the complete chord.
+3. For rhythm practice, listen to the demonstration and four count-in beats, then press OK eight times during the silent section. Tap Up to replay or Down to end.
+4. Volume starts at 90. Hold Up to increase it or Down to decrease it; keep holding to adjust continuously, with 0 for mute. In other exercises, hold OK to go back or end the session. Choose another round on the results page. Settings and scores are saved locally.

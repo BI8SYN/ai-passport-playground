@@ -9,12 +9,16 @@ FoloToy AI Passport 固件 monorepo，使用 OrbStack Docker 隔离 ESP-IDF 开�
 ./tools/dev build hardware-test
 ./tools/dev build resistor-reader
 ./tools/dev preview resistor-reader
+./tools/dev build ear-trainer
+./tools/dev preview ear-trainer
 ```
 
 `gate` 验证原始上游工程；`hardware-test` 是引用同一上游 main/BSP 的独立工程。
 构建缓存保存在 Docker volumes，验证后的固件及 ELF/MAP 导出至 Git 忽略的 artifacts/。
 默认配置没有设备权限，也没有烧录命令。
 
+- [练耳固件：听见音乐](firmware/ear-trainer/README.md)
+- [练耳验收与产物身份](docs/development/ear-trainer-validation-2026-10-29.md)
 - [首款应用：色环电阻读取器](firmware/resistor-reader/README.md)
 - [色环固件验收与产物身份](docs/development/resistor-reader-validation-2026-10-28.md)
 - [项目简述](docs/project-brief.md)

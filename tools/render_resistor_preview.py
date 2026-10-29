@@ -14,17 +14,20 @@ def chunk(kind, data):
     return struct.pack('!I', len(data)) + kind + data + struct.pack('!I', zlib.crc32(kind + data))
 
 def main():
-    app = ROOT / 'firmware/resistor-reader'
+    import sys
+    target = sys.argv[1] if len(sys.argv) > 1 else 'resistor-reader'
+    if target not in ('resistor-reader', 'ear-trainer'): raise SystemExit('Unknown preview target')
+    app = ROOT / 'firmware' / target
     lvgl = app / 'managed_components/lvgl__lvgl'
     if not (lvgl / 'CMakeLists.txt').is_file():
         raise SystemExit('Run ./tools/dev build resistor-reader first to resolve locked LVGL sources')
-    build = Path('/build/preview/resistor-reader')
-    output = ROOT / 'artifacts/resistor-reader-preview'
+    build = Path('/build/preview') / target
+    output = ROOT / 'artifacts' / (target + '-preview')
     output.mkdir(parents=True, exist_ok=True)
     run('cmake', '-S', app / 'preview', '-B', build, '-G', 'Ninja', f'-DLVGL_DIR={lvgl}')
     run('cmake', '--build', build, '--parallel', '8')
-    run(build / 'resistor_preview', output)
-    for ppm in output.glob('*-band.ppm'):
+    run(build / ('ear_preview' if target == 'ear-trainer' else 'resistor_preview'), output)
+    for ppm in output.glob('*.ppm'):
         header, size, maximum, pixels = ppm.read_bytes().split(b'\n', 3)
         assert (header, size, maximum, len(pixels)) == (b'P6', b'240 320', b'255', 240 * 320 * 3)
         scanlines = b''.join(b'\0' + pixels[y*720:(y+1)*720] for y in range(320))

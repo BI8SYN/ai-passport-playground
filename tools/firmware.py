@@ -13,20 +13,24 @@ import subprocess
 import sys
 from datetime import datetime, timezone
 
+# Also importable by host unit tests loaded via importlib.
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from build_cache import prune
+
 
 ROOT = Path(__file__).resolve().parents[1]
 BUILD_ROOT = Path("/build")
 APP = "FoloToy-AI-Passport"
 TARGETS = {"upstream": "vendor/ai-passport", "hardware-test": "firmware/hardware-test",
-           "resistor-reader": "firmware/resistor-reader"}
+           "resistor-reader": "firmware/resistor-reader", "ear-trainer": "firmware/ear-trainer"}
 
 
 def app_name(name):
-    return "resistor-reader" if name == "resistor-reader" else APP
+    return name if name in ("resistor-reader", "ear-trainer") else APP
 
 
 def archive_command(name, action, directory):
-    if name == "resistor-reader":
+    if name in ("resistor-reader", "ear-trainer"):
         return [sys.executable, ROOT / "tools/package_firmware.py", action, directory, "--app", app_name(name)]
     return [sys.executable, ROOT / "vendor/ai-passport/tools/archive_firmware.py", action, directory]
 
@@ -45,14 +49,21 @@ def parse_args(argv=None):
     commands = parser.add_subparsers(dest="command", required=True)
     for name in ("doctor", "gate", "static", "test", "cache-stats"):
         commands.add_parser(name)
+    clean = commands.add_parser("clean-builds", help="Preview stale build trees; --apply removes them")
+    clean.add_argument("project", nargs="?", choices=TARGETS)
+    clean.add_argument("--apply", action="store_true")
+    clean.add_argument("--keep", type=int, default=2)
+    clean.add_argument("--keep-benchmark", type=int, default=1)
     preview = commands.add_parser("preview")
-    preview.add_argument("project", choices=["resistor-reader"])
+    preview.add_argument("project", choices=["resistor-reader", "ear-trainer"])
     build = commands.add_parser("build")
     build.add_argument("project", nargs="?", default="hardware-test", choices=TARGETS)
     build.add_argument("--benchmark", action="store_true", help="Run renderer diagnostic comparison at startup (resistor-reader only)")
     args = parser.parse_args(argv)
     if getattr(args, "benchmark", False) and args.project != "resistor-reader":
         parser.error("--benchmark is only available for resistor-reader")
+    if args.command == "clean-builds" and (args.keep < 1 or args.keep_benchmark < 0):
+        parser.error("--keep must be >= 1 and --keep-benchmark must be >= 0")
     return args
 
 
@@ -138,25 +149,58 @@ def export_archive(name, build_dir, archive_root, mode, idf_version):
 
 def build_project(name, idf_version, benchmark=False):
     project = project_path(ROOT, name)
-    build = BUILD_ROOT / name / (config_identity(ROOT, project) + ("-benchmark" if benchmark else ""))
+    identity = config_identity(ROOT, project)
+    build = BUILD_ROOT / name / (identity + ("-benchmark" if benchmark else ""))
     build.mkdir(parents=True, exist_ok=True)
+    (build / ".last-used").touch()
     command = ["idf.py", "-B", build, "-D", f"SDKCONFIG={build / 'sdkconfig'}"]
     if name == "resistor-reader":
         command += ["-D", f"RR_BENCHMARK={'ON' if benchmark else 'OFF'}"]
     run(command + ["build"], cwd=project)
     run(["idf.py", "-B", build, "merge-bin", "-o", build / f"{app_name(name)}-full.bin"], cwd=project)
     upstream = project_path(ROOT, "upstream")
-    if name != "resistor-reader":
+    if name not in ("resistor-reader", "ear-trainer"):
         run([sys.executable, upstream / "tools/verify_firmware.py", build])
     archive_root = BUILD_ROOT / name / "archives"
     run(archive_command(name, "create", build) + ["--archive-root", archive_root])
     export_archive(name, build, archive_root, "benchmark" if benchmark else "incremental", idf_version)
+    (build / ".last-used").touch()
+    # This function runs under the same per-project lock as explicit cleanup.
+    try:
+        print(json.dumps(prune(BUILD_ROOT, name, protected={identity, identity + "-benchmark"}, apply=True), indent=2))
+    except (OSError, ValueError) as error:
+        print(f"Build succeeded; cache cleanup warning: {error}", file=sys.stderr)
+
+
+def clean_builds(args):
+    if not Path("/.dockerenv").exists():
+        raise ValueError("Use ./tools/dev clean-builds inside Docker")
+    lock_dir = BUILD_ROOT / "locks"
+    lock_dir.mkdir(parents=True, exist_ok=True)
+    failed = False
+    for name in ([args.project] if args.project else TARGETS):
+        with (lock_dir / f"{name}.lock").open("a") as lock:
+            try:
+                fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+            except BlockingIOError:
+                print(json.dumps({"project": name, "skipped": "build is running"}))
+                continue
+            identity = config_identity(ROOT, project_path(ROOT, name))
+            report = prune(BUILD_ROOT, name, keep_normal=args.keep, keep_benchmark=args.keep_benchmark,
+                           protected={identity, identity + "-benchmark"}, apply=args.apply)
+            print(json.dumps(report, indent=2))
+            failed = failed or bool(report["errors"])
+    if failed:
+        raise ValueError("Some cache directories could not be cleaned; see errors above")
 
 
 def main(argv=None):
     args = parse_args(argv)
     if args.command == "test":
         run([sys.executable, "-m", "unittest", "discover", "-s", "tests"])
+        return
+    if args.command == "clean-builds":
+        clean_builds(args)
         return
     version = check_environment()
     if args.command == "doctor":
@@ -171,7 +215,7 @@ def main(argv=None):
         run(["ccache", "--show-stats"])
         return
     if args.command == "preview":
-        run([sys.executable, ROOT / "tools/render_resistor_preview.py"])
+        run([sys.executable, ROOT / "tools/render_resistor_preview.py", args.project])
         return
     name = args.project if args.command == "build" else "upstream"
     lock_dir = BUILD_ROOT / "locks"

@@ -28,3 +28,12 @@ const output = root + 'firmware/resistor-reader/main/resistor_font_16.c';
 const generated = await readFile(output, 'utf8');
 await writeFile(output, `/* ${source.copyright}\n * Derived font subset, SIL OFL 1.1; license: assets/fonts/Noto-OFL.txt.\n */\n` + generated.trimEnd() + "\n");
 console.log('Generated resistor_font_16 from pinned Noto source; see assets/fonts/Noto-OFL.txt.');
+
+const earFiles = ['ear_ui.c', 'ear_model.c', 'ear_controller.c'];
+const earSources = (await Promise.all(earFiles.map(f => readFile(root + 'firmware/ear-trainer/main/' + f, 'utf8')))).join('');
+const earSymbols = [...new Set(earSources.match(/[^\x00-\x7f]/gu))].join('');
+const earOutput = root + 'firmware/ear-trainer/main/ear_font_16.c';
+execFileSync(process.execPath, ['node_modules/lv_font_conv/lv_font_conv.js', '--font', path,
+  '--range','0x20-0x7e','--symbols',earSymbols,'--size','16','--bpp','4','--format','lvgl',
+  '--no-compress','--lv-include','lvgl.h','--lv-font-name','ear_font_16','--output',earOutput],{stdio:'inherit'});
+await writeFile(earOutput, `/* ${source.copyright}\n * Derived font subset, SIL OFL 1.1; license: assets/fonts/Noto-OFL.txt.\n */\n` + (await readFile(earOutput,'utf8')).trimEnd() + '\n');
