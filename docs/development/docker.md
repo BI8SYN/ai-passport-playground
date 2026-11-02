@@ -42,6 +42,12 @@ docker compose build \
 
 `build resistor-reader` 构建独立产品并验证其项目名、分区、完整镜像及 ELF 身份；`preview resistor-reader` 在 SDK 容器中编译原生 LVGL，渲染同一份产品 UI 并检查字形。字体再生成见 [字体来源](../../assets/fonts/README.md)。
 
+`build rf-link-handmic` 构建正式BLE手咪，`preview rf-link-handmic` 渲染同一份LVGL界面、检查全部显示字形和100次页面切换；接入合同见[协议包](../spec/rf-link-handmic/README.md)。此target不执行烧录。
+
+RF Link当前仅使用ADPCM，Opus启动自测入口已移除；历史压力数据见[真机记录](rf-link-opus-device-benchmark-2026-11-02.md)。
+
+`build ble-signer-lab` 构建独立 BLE 远程签名实验固件；配套电脑 Web 页面及验收步骤见 [实验说明](../../firmware/ble-signer-lab/README.md)。实验不使用正式证书、不写 eFuse。
+
 ## 缓存与配置
 
 | 内容 | 容器内路径 | 存储方式 |
@@ -55,6 +61,7 @@ docker compose build \
 | hardware-test 解包组件 | /workspace/firmware/hardware-test/managed_components | managed-hardware-test volume |
 | ear-trainer 解包组件 | /workspace/firmware/ear-trainer/managed_components | managed-ear-trainer volume |
 | resistor-reader 解包组件 | /workspace/firmware/resistor-reader/managed_components | managed-resistor-reader volume |
+| rf-link-handmic 解包组件 | /workspace/firmware/rf-link-handmic/managed_components | managed-rf-link-handmic volume |
 | 字体工具依赖与下载缓存 | /workspace/tools/fonts/node_modules、/root/.npm | font-node-modules / font-npm-cache volumes |
 | 原始 gate 输出 | /workspace/vendor/ai-passport/build | upstream-gate-artifacts volume |
 | 验证后的交付文件 | /workspace/artifacts/<target>/ | 导出到主机，Git 忽略 |

@@ -1,0 +1,14 @@
+import assert from 'node:assert/strict';
+import {webcrypto} from 'node:crypto';
+import {selftest,frames,unhex,identity,TEST_SEED,signature} from './protocol.mjs';
+console.log(await selftest(webcrypto.subtle));
+assert.throws(()=>unhex('zz',1));assert.throws(()=>unhex('00',32));
+const msg={op:'signature',id:123,sig:'a'.repeat(128)};
+const chunks=frames(msg);assert(chunks.every(c=>c.length<=20));
+assert.deepEqual(JSON.parse(new TextDecoder().decode(Buffer.concat(chunks))),msg);
+assert.throws(()=>frames({message:'a'.repeat(600)}));
+const id=await identity(TEST_SEED,webcrypto.subtle),text='RFLink BLE Lab v1|1|0123456789abcdef';
+const sig=await signature(id,text,webcrypto.subtle);
+assert(await webcrypto.subtle.verify('Ed25519',id.publicKey,sig,new TextEncoder().encode(text)));
+assert(!await webcrypto.subtle.verify('Ed25519',id.publicKey,sig,new TextEncoder().encode(text+'tamper')));
+console.log('Web protocol: PASS (20-byte framing, bounds, Ed25519 roundtrip, tamper)');

@@ -22,15 +22,15 @@ ROOT = Path(__file__).resolve().parents[1]
 BUILD_ROOT = Path("/build")
 APP = "FoloToy-AI-Passport"
 TARGETS = {"upstream": "vendor/ai-passport", "hardware-test": "firmware/hardware-test",
-           "resistor-reader": "firmware/resistor-reader", "ear-trainer": "firmware/ear-trainer"}
+           "resistor-reader": "firmware/resistor-reader", "ear-trainer": "firmware/ear-trainer", "ble-signer-lab": "firmware/ble-signer-lab", "rf-link-handmic": "firmware/rf-link-handmic"}
 
 
 def app_name(name):
-    return name if name in ("resistor-reader", "ear-trainer") else APP
+    return name if name in ("resistor-reader", "ear-trainer", "ble-signer-lab", "rf-link-handmic") else APP
 
 
 def archive_command(name, action, directory):
-    if name in ("resistor-reader", "ear-trainer"):
+    if name in ("resistor-reader", "ear-trainer", "ble-signer-lab", "rf-link-handmic"):
         return [sys.executable, ROOT / "tools/package_firmware.py", action, directory, "--app", app_name(name)]
     return [sys.executable, ROOT / "vendor/ai-passport/tools/archive_firmware.py", action, directory]
 
@@ -55,7 +55,7 @@ def parse_args(argv=None):
     clean.add_argument("--keep", type=int, default=2)
     clean.add_argument("--keep-benchmark", type=int, default=1)
     preview = commands.add_parser("preview")
-    preview.add_argument("project", choices=["resistor-reader", "ear-trainer"])
+    preview.add_argument("project", choices=["resistor-reader", "ear-trainer", "rf-link-handmic"])
     build = commands.add_parser("build")
     build.add_argument("project", nargs="?", default="hardware-test", choices=TARGETS)
     build.add_argument("--benchmark", action="store_true", help="Run renderer diagnostic comparison at startup (resistor-reader only)")
@@ -159,7 +159,7 @@ def build_project(name, idf_version, benchmark=False):
     run(command + ["build"], cwd=project)
     run(["idf.py", "-B", build, "merge-bin", "-o", build / f"{app_name(name)}-full.bin"], cwd=project)
     upstream = project_path(ROOT, "upstream")
-    if name not in ("resistor-reader", "ear-trainer"):
+    if name not in ("resistor-reader", "ear-trainer", "ble-signer-lab", "rf-link-handmic"):
         run([sys.executable, upstream / "tools/verify_firmware.py", build])
     archive_root = BUILD_ROOT / name / "archives"
     run(archive_command(name, "create", build) + ["--archive-root", archive_root])
@@ -215,7 +215,7 @@ def main(argv=None):
         run(["ccache", "--show-stats"])
         return
     if args.command == "preview":
-        run([sys.executable, ROOT / "tools/render_resistor_preview.py", args.project])
+        run([sys.executable, ROOT / ("tools/render_handmic_preview.py" if args.project == "rf-link-handmic" else "tools/render_resistor_preview.py"), args.project])
         return
     name = args.project if args.command == "build" else "upstream"
     lock_dir = BUILD_ROOT / "locks"

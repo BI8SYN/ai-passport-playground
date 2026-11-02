@@ -23,6 +23,8 @@ services:
       - user-cache:/cache/xdg
       - managed-upstream:/workspace/vendor/ai-passport/managed_components
       - managed-hardware-test:/workspace/firmware/hardware-test/managed_components
+      - managed-rf-link-handmic:/workspace/firmware/rf-link-handmic/managed_components
+      - managed-ble-signer-lab:/workspace/firmware/ble-signer-lab/managed_components
       - managed-ear-trainer:/workspace/firmware/ear-trainer/managed_components
       - managed-resistor-reader:/workspace/firmware/resistor-reader/managed_components
       - upstream-gate-artifacts:/workspace/vendor/ai-passport/build
@@ -47,6 +49,8 @@ volumes:
   managed-upstream:
   managed-hardware-test:
   managed-resistor-reader:
+  managed-ble-signer-lab:
+  managed-rf-link-handmic:
   managed-ear-trainer:
   upstream-gate-artifacts:
   font-node-modules:
